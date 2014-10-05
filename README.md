@@ -2,6 +2,8 @@
 
 #### Botman is here to speed up those witty responses on Facebook
 
+![Demo](./demo.gif)
+
 ## Requirements
 
 Compatible with
