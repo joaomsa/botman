@@ -7,15 +7,6 @@
         return array[Math.floor(Math.random() * array.length)];
     }
 
-    function serializeToUrlEncoded(obj){
-        var str = [];
-        for (var p in obj)
-            if (obj.hasOwnProperty(p)){
-                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-            }
-        return str.join("&");
-    }
-
     function imageMe(msg, query, animated){
         var q = {
             v: "1.0", 
