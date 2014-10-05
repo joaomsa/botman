@@ -4,6 +4,8 @@
     "use strict";
 
     robot.respond(/map( me)?(.+)/i, function(msg){
+        var location = msg.match[2];
+
         var url = "http://maps.google.com/maps?q=" +
             encodeURIComponent(location) +
             "&hl=en&sll=37.0625,-95.677068&sspn=73.579623,100.371094&vpsrc=0&hnear=" +

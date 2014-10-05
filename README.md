@@ -2,7 +2,7 @@
 
 #### Botman is here to speed up those witty responses on Facebook
 
-![Demo](./demo.gif)
+![Demo](./demos/demo.gif)
 
 ## Requirements
 
@@ -25,11 +25,15 @@ Get it [here](https://github.com/joaomsa/botman/raw/master/dist/botman.user.js)
     
 Returns a pertinent image or animated gif for the query from Google Images
 
+![](./demos/imagedemo.gif)
+
 ### maps
 
     - botman map (query)
 
 Returns a google maps link to the queried location
+
+![](./demos/mapdemo.gif)
 
 ### translate
 
@@ -39,6 +43,17 @@ Returns a google maps link to the queried location
 
 Translate the query from the source language to to target language.
 Source if not specified source language defaults to "auto" and target language to "english".
+
+![](./demos/translatedemo.gif)
+
+### youtube
+
+    - botman yt (query)
+    - botman yotubue (query)
+
+Returns the most relevant video for the query
+
+![](./demos/videodemo.gif)
 
 ## Contributing
 

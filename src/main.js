@@ -3,7 +3,7 @@
 // @namespace   botman
 // @description Botman is here to speed up those witty responses on facebook
 // @include     https://www.facebook.com/*
-// @version     1.0.2
+// @version     1.0.3
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 

@@ -3,7 +3,7 @@
 // @namespace   botman
 // @description Botman is here to speed up those witty responses on facebook
 // @include     https://www.facebook.com/*
-// @version     1.0.2
+// @version     1.0.3
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
@@ -147,6 +147,8 @@ robot.listen();
     "use strict";
 
     robot.respond(/map( me)?(.+)/i, function(msg){
+        var location = msg.match[2];
+
         var url = "http://maps.google.com/maps?q=" +
             encodeURIComponent(location) +
             "&hl=en&sll=37.0625,-95.677068&sspn=73.579623,100.371094&vpsrc=0&hnear=" +
@@ -293,4 +295,41 @@ robot.listen();
         });
 
     });
+}());
+
+// Youtube --------------------------------------------------------------------
+
+(function(){
+    "use strict";
+
+    robot.respond(/(?:yt|youtube)(?: me)? (.*)/i, function(msg){
+        var query = msg.match[1];
+
+        var params = {
+            orderBy: "relevance",
+            "max-results": 15,
+            alt: "json",
+            q: query
+        }
+
+        var url = "http://gdata.youtube.com/feeds/api/videos";
+
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: url + "?" + serializeToUrlEncoded(params),
+            onload: function(resp){
+                var videos = JSON.parse(resp.responseText);
+                videos = videos.feed.entry;
+                var video = videos[0];
+
+                for (var i = 0; i < video.link.length; i++){
+                    var link = video.link[i];
+                    if (link.rel === "alternate" && link.type === "text/html"){
+                        msg.send(link.href);
+                    }
+                }
+            }
+        });
+    });
+
 }());
