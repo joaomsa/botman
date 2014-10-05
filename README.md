@@ -49,7 +49,7 @@ Source if not specified source language defaults to "auto" and target language t
 ### youtube
 
     - botman yt (query)
-    - botman yotubue (query)
+    - botman youtube (query)
 
 Returns the most relevant video for the query
 
