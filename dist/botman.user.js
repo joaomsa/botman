@@ -26,12 +26,12 @@ function Botman(name){
 
         if (!!cmd){
             for (var i = 0; i < that.captures.length; i++){
-                var matches = cmd.match(that.captures[i]);
-                if (!!matches){
+                var match = cmd.match(that.captures[i]);
+                if (!!match){
                     //keep it in the oven before sending
                     msg.hold();
 
-                    msg.matches = matches;
+                    msg.match = match;
 
                     // execute response callback with message
                     that.responses[i](msg);
@@ -131,10 +131,26 @@ robot.listen();
     }
 
     robot.respond(/(image|img)( me)? (.*)/i, function(msg){
-        imageMe(msg, msg.matches[3], false);
+        imageMe(msg, msg.match[3], false);
     });
 
     robot.respond(/animate( me)? (.*)/i, function(msg){
-        imageMe(msg, msg.matches[2], true);
+        imageMe(msg, msg.match[2], true);
     });
 }());
+
+// Google Maps ----------------------------------------------------------------
+
+(function(){
+    "use strict";
+
+    robot.respond(/map( me)?(.+)/i, function(msg){
+        var url = "http://maps.google.com/maps?q=" +
+            encodeURIComponent(location) +
+            "&hl=en&sll=37.0625,-95.677068&sspn=73.579623,100.371094&vpsrc=0&hnear=" +
+            encodeURIComponent(location) +
+            "&t=m&z=11";
+
+        msg.send(url);
+    });
+}())

@@ -48,10 +48,10 @@
     }
 
     robot.respond(/(image|img)( me)? (.*)/i, function(msg){
-        imageMe(msg, msg.matches[3], false);
+        imageMe(msg, msg.match[3], false);
     });
 
     robot.respond(/animate( me)? (.*)/i, function(msg){
-        imageMe(msg, msg.matches[2], true);
+        imageMe(msg, msg.match[2], true);
     });
 }());

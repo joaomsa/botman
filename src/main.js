@@ -26,12 +26,12 @@ function Botman(name){
 
         if (!!cmd){
             for (var i = 0; i < that.captures.length; i++){
-                var matches = cmd.match(that.captures[i]);
-                if (!!matches){
+                var match = cmd.match(that.captures[i]);
+                if (!!match){
                     //keep it in the oven before sending
                     msg.hold();
 
-                    msg.matches = matches;
+                    msg.match = match;
 
                     // execute response callback with message
                     that.responses[i](msg);
