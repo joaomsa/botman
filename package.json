@@ -1,0 +1,20 @@
+{
+  "name": "botman",
+  "version": "1.0.0",
+  "description": "Botman is here to speed up those witty responses on Facebook",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joaomsa/botman.git"
+  },
+  "author": "Joao Sa <me@joaomsa.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joaomsa/botman/issues"
+  },
+  "homepage": "https://github.com/joaomsa/botman",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-watch": "^0.6.1"
+  }
+}
