@@ -51,9 +51,20 @@ Source if not specified source language defaults to "auto" and target language t
     - botman yt (query)
     - botman youtube (query)
 
-Returns the most relevant video for the query
+Returns the most relevant video for the query.
 
 ![](./demos/videodemo.gif)
+
+### caetano
+
+    - maneira burra
+    - que loucura
+    - como voce e burro
+    - que coisa absurda
+
+Caetano lays the smackdown, you really are that stupid.
+
+![](./demos/caetanodemo.gif)
 
 ## Contributing
 

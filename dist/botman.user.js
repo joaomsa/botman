@@ -3,7 +3,7 @@
 // @namespace   botman
 // @description Botman is here to speed up those witty responses on facebook
 // @include     https://www.facebook.com/*
-// @version     1.0.3
+// @version     1.1.0
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
@@ -13,33 +13,52 @@ function Botman(name){
 
     that.name = name;
 
-    that.captures = [];
-    that.responses = [];
+    that.hearCaptures = [];
+    that.hearCallbacks = [];
 
-    that.respond = function(capture, responseCb){
-        that.captures.push(capture);
-        that.responses.push(responseCb);
-    }
+    that.responseCaptures = [];
+    that.responseCallbacks = [];
+
+    that.hear = function(capture, callback){
+        that.hearCaptures.push(capture);
+        that.hearCallbacks.push(callback);
+    };
+
+    that.respond = function(capture, callback){
+        that.responseCaptures.push(capture);
+        that.responseCallbacks.push(callback);
+    };
 
     that.interpret = function(msg){
-        var cmd = msg.body().match(new RegExp("^" + that.name + "\\s*(.*)", "i"))[1];
+        if (msg.botmanGenerated())
+            return;
 
-        if (!!cmd){
-            for (var i = 0; i < that.captures.length; i++){
-                var match = cmd.match(that.captures[i]);
+        var cmdMatch = msg.body().match(new RegExp("^" + that.name + "\\s*(.*)", "i"));
+        if (!!cmdMatch){ // Triggers registered with respond
+            var cmd = cmdMatch[1];
+            for (var i = 0; i < that.responseCaptures.length; i++){
+                var match = cmd.match(that.responseCaptures[i]);
                 if (!!match){
                     //keep it in the oven before sending
                     msg.hold();
-
                     msg.match = match;
-
                     // execute response callback with message
-                    that.responses[i](msg);
+                    that.responseCallbacks[i](msg);
+                    return;
+                }
+            }
+        } else { // Triggers registered with hear
+            for (var i = 0; i < that.hearCaptures.length; i++){
+                var match = msg.body().match(that.hearCaptures[i]);
+                if (!!match){
+                    msg.hold();
+                    msg.match = match;
+                    that.hearCallbacks[i](msg);
                     return;
                 }
             }
         }
-    }
+    };
 
     that.listen = function(){
         window.addEventListener("keydown", function(ev){
@@ -51,9 +70,8 @@ function Botman(name){
                 }
             }
         }, true);
-    }
+    };
 }
-
 
 function Message(ev){
     "use strict";
@@ -65,18 +83,57 @@ function Message(ev){
         return that.event.target.value;
     }
 
+    that.botmanGenerated = function(){
+        return !!that.event.botmanGenerated ? true : false;
+    }
+
     that.send = function(body){
         that.event.target.value = body;
+    }
 
-        // Don't automatically send, until I figure out how to 
-        // automatically trigger share link parsing
-        //that.event.target.dispatchEvent(that.event);
+    that.sendNow = function(body){
+        that.event.target.value = body;
+
+        // the gambiarra begins
+        if (navigator.userAgent.contains("Chrome")){
+            var ev = Keyfaker.keydown(13);
+            ev.botmanGenerated = true;
+            that.event.target.dispatchEvent(ev);
+        } else {
+            that.event.botmanGenerated = true;
+            that.event.target.dispatchEvent(that.event);
+        }
+
     }
 
     that.hold = function(){
         that.event.stopPropagation();
     }
 }
+
+Keyfaker = {};
+Keyfaker.keyevent = function(keyCode, type){
+    var ev = document.createEvent("Event");
+
+    ev.initEvent(type, true, true);
+
+    ev.keyCode = keyCode;
+    ev.which = keyCode;
+
+    return ev;
+};
+
+Keyfaker.keydown = function(keyCode){
+    return Keyfaker.keyevent(keyCode, "keydown");
+};
+
+Keyfaker.keyup = function(keyCode){
+    return Keyfaker.keyevent(keyCode, "keyup");
+};
+
+Keyfaker.keypress = function(keyCode){
+    return Keyfaker.keyevent(keyCode, "keypress");
+};
 
 function serializeToUrlEncoded(obj){
     "use strict";
@@ -91,6 +148,39 @@ function serializeToUrlEncoded(obj){
 
 var robot = new Botman("botman");
 robot.listen();
+
+// Caetano --------------------------------------------------------------------
+
+(function(){
+    "use strict";
+
+    var script = [
+        "Não...",
+        "Você é burro cara,",
+        "que loucura,",
+        "como você é burro.",
+        "Que coisa absurda,",
+        "isso aí que você disse é tudo burrice,",
+        "burrice...",
+        "Eu num num num",
+        "num cunsigo gravar muito bem o que você falou porque você fala de uma maneira burra...",
+        "Entendeu...?"
+    ];
+
+    var pattern = /(maneira burra|que loucura|(como )?(voc(e|ê)|vc) (é|e) burro|(que )?coisa absurda)/i;
+
+    robot.hear(pattern, function(msg){
+        var i = 0;
+        var intervalID = setInterval(function(){
+            if (i < script.length){
+                msg.sendNow(script[i]);
+                i += 1;
+            } else {
+                clearInterval(intervalID);
+            }
+        }, 2000);
+    });
+}());
 
 // Google Images ----------------------------------------------------------
 
@@ -157,7 +247,7 @@ robot.listen();
 
         msg.send(url);
     });
-}())
+}());
 
 // Google Translate -----------------------------------------------------------
 
