@@ -19,15 +19,9 @@ function Message(ev){
     that.sendNow = function(body){
         that.event.target.value = body;
 
-        // the gambiarra begins
-        if (navigator.userAgent.contains("Chrome")){
-            var ev = Keyfaker.keydown(13);
-            ev.botmanGenerated = true;
-            that.event.target.dispatchEvent(ev);
-        } else {
-            that.event.botmanGenerated = true;
-            that.event.target.dispatchEvent(that.event);
-        }
+        var ev = Keyfaker.keydown(13);
+        ev.botmanGenerated = true;
+        that.event.target.dispatchEvent(ev);
 
     }
 
