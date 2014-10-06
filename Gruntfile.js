@@ -5,8 +5,12 @@ module.exports = function(grunt) {
         concat: {
             dist: {
                 src: [
-                    "src/main.js",
-                    "src/scripts/*"
+                    "src/Main.js",
+                    "src/Botman.js",
+                    "src/Message.js",
+                    "src/Keyfaker.js",
+                    "src/Util.js",
+                    "src/scripts/*.js"
                 ],
                 dest: "dist/botman.user.js"
             }
@@ -19,10 +23,23 @@ module.exports = function(grunt) {
                 ],
                 tasks: ["concat"]
             }
+        },
+
+        shell: {
+            installFirefox: {
+                command: "firefox dist/botman.user.js"
+            },
+            installChromium: {
+                command: "chromium dist/botman.user.js"
+            }
         }
     });
 
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-shell");
+    grunt.registerTask("install:chromium", ["shell:installChromium"]);
+    grunt.registerTask("install:firefox", ["shell:installFirefox"]);
+    grunt.registerTask("install", ["install:firefox"]);
     grunt.registerTask("default", ["watch"]);
 }
