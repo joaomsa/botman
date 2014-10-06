@@ -20,13 +20,14 @@
 
     robot.hear(pattern, function(msg){
         var i = 0;
-        var intervalID = setInterval(function(){
+        var delay = 1500;
+
+        (function sayLine(){
+            msg.sendNow(script[i]);
+            i += 1;
             if (i < script.length){
-                msg.sendNow(script[i]);
-                i += 1;
-            } else {
-                clearInterval(intervalID);
+                setTimeout(sayLine, delay);
             }
-        }, 2000);
+        }());
     });
 }());

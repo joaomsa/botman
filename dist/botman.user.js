@@ -3,7 +3,7 @@
 // @namespace   botman
 // @description Botman is here to speed up those witty responses on facebook
 // @include     https://www.facebook.com/*
-// @version     1.1.1
+// @version     1.1.2
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
@@ -176,14 +176,15 @@ function serializeToUrlEncoded(obj){
 
     robot.hear(pattern, function(msg){
         var i = 0;
-        var intervalID = setInterval(function(){
+        var delay = 1500;
+
+        (function sayLine(){
+            msg.sendNow(script[i]);
+            i += 1;
             if (i < script.length){
-                msg.sendNow(script[i]);
-                i += 1;
-            } else {
-                clearInterval(intervalID);
+                setTimeout(sayLine, delay);
             }
-        }, 2000);
+        }());
     });
 }());
 
