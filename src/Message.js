@@ -14,6 +14,10 @@ function Message(ev){
 
     that.send = function(body){
         that.event.target.value = body;
+
+        var ev = Keyfaker.keydown(Keyfaker.SPACE);
+        ev.botmanGenerated = true;
+        that.event.target.dispatchEvent(ev);
     }
 
     that.sendNow = function(body){

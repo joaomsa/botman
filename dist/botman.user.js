@@ -5,7 +5,7 @@
 // @include     https://www.facebook.com/*
 // @exclude     https://www.facebook.com/ai.php*
 // @exclude     https://www.facebook.com/xti.php*
-// @version     1.1.4
+// @version     1.2.0
 // @grant       GM_xmlhttpRequest
 // @run-at      document-end
 // ==/UserScript==
@@ -95,6 +95,10 @@ function Message(ev){
 
     that.send = function(body){
         that.event.target.value = body;
+
+        var ev = Keyfaker.keydown(Keyfaker.SPACE);
+        ev.botmanGenerated = true;
+        that.event.target.dispatchEvent(ev);
     }
 
     that.sendNow = function(body){
@@ -286,7 +290,11 @@ function serializeToUrlEncoded(obj){
                 if (!!images.responseData){
                     images = images.responseData.results;
                     if (!!images && images.length > 0){
-                        msg.send(chooseRandom(images).unescapedUrl)
+                        msg.send(chooseRandom(images).unescapedUrl + " ");
+                        // Clear link after facebook share has parsed it
+                        setTimeout(function(){
+                            msg.send("");
+                        }, 1000); // 
                     }
                 }
             },
