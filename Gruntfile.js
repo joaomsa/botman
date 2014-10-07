@@ -41,5 +41,5 @@ module.exports = function(grunt) {
     grunt.registerTask("install:chromium", ["shell:installChromium"]);
     grunt.registerTask("install:firefox", ["shell:installFirefox"]);
     grunt.registerTask("install", ["install:firefox"]);
-    grunt.registerTask("default", ["watch"]);
+    grunt.registerTask("default", ["concat"]);
 }
