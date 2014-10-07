@@ -19,10 +19,9 @@ function Message(ev){
     that.sendNow = function(body){
         that.event.target.value = body;
 
-        var ev = Keyfaker.keydown(13);
+        var ev = Keyfaker.keydown(Keyfaker.ENTER);
         ev.botmanGenerated = true;
         that.event.target.dispatchEvent(ev);
-
     }
 
     that.hold = function(){

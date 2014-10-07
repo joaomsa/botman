@@ -55,7 +55,7 @@ function Botman(name){
         window.addEventListener("keydown", function(ev){
             if (ev.target.nodeName === "TEXTAREA" 
                 && ev.target.classList.contains("uiTextareaAutogrow")){ 
-                if (ev.which === 13){ // enter key
+                if (ev.which === Keyfaker.ENTER){
                     var msg = new Message(ev);
                     that.interpret(msg);
                 }
