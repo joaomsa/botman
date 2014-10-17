@@ -68,56 +68,72 @@ function Botman(name){
 
     that.listen = function(){
         window.addEventListener("keydown", function(ev){
-            if (ev.target.nodeName === "TEXTAREA" 
-                    && ev.target.classList.contains("uiTextareaAutogrow")){ 
+            if (ev.target.nodeName === "TEXTAREA"
+                    && ev.target.classList.contains("uiTextareaAutogrow")){
                 if (ev.which === Keyfaker.ENTER){
                     var msg = new Message(ev);
                     that.interpret(msg);
                 }
             }
         }, true);
+
+        that.monitor();
     };
-}
 
-(function(open) {
+    that.messageQueue = [];
 
-    XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+    that.monitor = function(){
+        var origOpen = XMLHttpRequest.prototype.open;
 
-        this.addEventListener("readystatechange", function() {
-            if (this.readyState == XMLHttpRequest.DONE){
-                try {
-                    var jsonResp = JSON.parse(this.responseText.slice(this.responseText.indexOf('{')));
-                    if (jsonResp.t == "msg"){
-                        for (var i = 0; i < jsonResp.ms.length; i++){
-                            if (jsonResp.ms[i].type == "messaging"){
-                                console.log(jsonResp.ms[i]);
-                                console.log(jsonResp.ms[i].message.mid);
-                                var mid = jsonResp.ms[i].message.mid.match("mid\.(.+):(.+)");
-                                var selector = 'div[data-reactid$="1' + mid[1] + '=2' + mid[2] + '"]';
-                                console.log(selector);
-                                // parse message body and if it matches
-                                // this needs to be sent to a queue
-                                // when the user opens
-                                // then it should send the message
-                                console.log(document.querySelector(selector));
+        XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+            this.addEventListener("readystatechange", function() {
+                if (this.readyState == XMLHttpRequest.DONE){
+
+                    var responses = this.responseText.
+                        slice(this.responseText.indexOf('{')).
+                        split('\n');
+
+                    for (var i = 0; i < responses.length; i++){
+                        if (!responses[i]) continue;
+
+                        try {
+                            var resp = JSON.parse(responses[i]);
+                            if (resp.t === "msg"){
+                                for (var j = 0; j < resp.ms.length; j++){
+                                    if (resp.ms[j].type === "messaging"){
+                                        //var body = resp.ms[j].message.body;
+                                        that.messageQueue.push(resp.ms[j]);
+                                    }
+                                }
                             }
+                        } catch (e){
+                            console.log("Couldn't parse:\n|" + responses[i] + "|");
                         }
-                    }
-                } catch (e) {
-                    var txt = this.responseText.slice(this.responseText.indexOf('{'));
-                    var newtxt = txt.split("\n")
-                    for (var j = 0; j < newtxt.length; j++){
-                        console.log(newtxt[j]);
+
                     }
                 }
+            }, false);
+
+            return origOpen.apply(this, [].slice.call(arguments));
+        };
+    }
+
+    setInterval(function(){
+        if (that.messageQueue.length > 0){
+            var payload = that.messageQueue[0];
+            var mid = payload.message.mid.match("mid\.(.+):(.+)");
+            var selector = 'div[data-reactid$="1' + mid[1] + '=2' + mid[2] + '"]';
+            var element = document.querySelector(selector);
+
+            console.log("------------------------");
+
+            if (element !== null){
+                console.log(element);
+                that.messageQueue.shift();
             }
-        }, false);
-
-        return open.apply(this, [].slice.call(arguments));
-        //open.call(this, method, url, async, user, pass);
-    };
-
-})(XMLHttpRequest.prototype.open);
+        }
+    }, 1000);
+}
 
 function Message(ev){
     "use strict";
