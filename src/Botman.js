@@ -10,6 +10,9 @@ function Botman(name){
     that.responseCaptures = [];
     that.responseCallbacks = [];
 
+    var replyCaptures = [];
+    var replyCallbacks = [];
+
     that.hear = function(capture, callback){
         that.hearCaptures.push(capture);
         that.hearCallbacks.push(callback);
@@ -19,6 +22,11 @@ function Botman(name){
         that.responseCaptures.push(capture);
         that.responseCallbacks.push(callback);
     };
+
+    that.reply = function(capture, callback){
+        replyCaptures.push(capture);
+        replyCallbacks.push(callback);
+    }
 
     that.interpret = function(msg){
         if (msg.botmanGenerated())
@@ -51,12 +59,25 @@ function Botman(name){
         }
     };
 
+    function interpretReceived(msg){
+        for (var i = 0; i < replyCaptures.length; i++){
+            console.log(replyCaptures[i]);
+            var match = msg.body().match(replyCaptures[i]);
+            if (!!match){
+                msg.match = match;
+                console.log("weee matched :)");
+                replyCallbacks[i](msg);
+                return;
+            }
+        }
+    }
+
     that.listen = function(){
         window.addEventListener("keydown", function(ev){
             if (ev.target.nodeName === "TEXTAREA"
                     && ev.target.classList.contains("uiTextareaAutogrow")){
                 if (ev.which === Keyfaker.ENTER){
-                    var msg = new Message(ev);
+                    var msg = new SentMessage(ev);
                     that.interpret(msg);
                 }
             }
@@ -112,7 +133,8 @@ function Botman(name){
             var element = document.querySelector(selector);
 
             if (element !== null){
-                Message.fromReply(element);
+                var msg = new ReceivedMessage(element, payload.message.body);
+                interpretReceived(msg);
                 that.messageQueue.shift();
             }
         }

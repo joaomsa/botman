@@ -1,27 +1,9 @@
-function Message(ev){
+function Message(target){
     "use strict";
+
     var that = this;
 
-    if (ev instanceof Event) {
-        that.event = ev;
-        that.target = that.event.target;
-    } else {
-        that.target = ev;
-    }
-
-    that.body = function(){
-        return that.target.value;
-    }
-
-    // [Deprecate] 
-    that.botmanGenerated = function(){
-        return !!that.event.botmanGenerated ? true : false;
-    }
-
-    // [Deprecate]
-    that.hold = function(){
-        that.event.stopPropagation();
-    }
+    that.target = target;
 
     that.send = function(body){
         that.target.value = body;
@@ -40,7 +22,34 @@ function Message(ev){
     }
 }
 
-Message.fromReply = function(replyElement){
+function SentMessage(ev){
+    "use strict";
+
+    var that = this;
+
+    that.event = ev;
+    Message.call(that, that.event.target);
+
+    that.body = function(){
+        return that.target.value;
+    }
+
+    that.botmanGenerated = function(){
+        return !!that.event.botmanGenerated ? true : false;
+    }
+
+    that.hold = function(){
+        that.event.stopPropagation();
+    }
+}
+
+SentMessage.prototype = Object.create(Message.prototype);
+
+function ReceivedMessage(replyElement, body){
+    "use strict";
+
+    var that = this;
+
     // Holy shiiiit this is horrible
     var textarea = replyElement.
         parentElement.
@@ -55,8 +64,11 @@ Message.fromReply = function(replyElement){
         parentElement.
         querySelector("textarea");
 
-    var msg = new Message(textarea);
-    console.log(msg);
-    msg.sendNow("I can't do without you");
-    return msg;
-};
+    Message.call(that, textarea);
+
+    that.body = function(){
+        return body;
+    }
+}
+
+ReceivedMessage.prototype = Object.create(Message.prototype);

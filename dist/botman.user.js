@@ -25,6 +25,9 @@ function Botman(name){
     that.responseCaptures = [];
     that.responseCallbacks = [];
 
+    var replyCaptures = [];
+    var replyCallbacks = [];
+
     that.hear = function(capture, callback){
         that.hearCaptures.push(capture);
         that.hearCallbacks.push(callback);
@@ -34,6 +37,11 @@ function Botman(name){
         that.responseCaptures.push(capture);
         that.responseCallbacks.push(callback);
     };
+
+    that.reply = function(capture, callback){
+        replyCaptures.push(capture);
+        replyCallbacks.push(callback);
+    }
 
     that.interpret = function(msg){
         if (msg.botmanGenerated())
@@ -66,12 +74,25 @@ function Botman(name){
         }
     };
 
+    function interpretReceived(msg){
+        for (var i = 0; i < replyCaptures.length; i++){
+            console.log(replyCaptures[i]);
+            var match = msg.body().match(replyCaptures[i]);
+            if (!!match){
+                msg.match = match;
+                console.log("weee matched :)");
+                replyCallbacks[i](msg);
+                return;
+            }
+        }
+    }
+
     that.listen = function(){
         window.addEventListener("keydown", function(ev){
             if (ev.target.nodeName === "TEXTAREA"
                     && ev.target.classList.contains("uiTextareaAutogrow")){
                 if (ev.which === Keyfaker.ENTER){
-                    var msg = new Message(ev);
+                    var msg = new SentMessage(ev);
                     that.interpret(msg);
                 }
             }
@@ -127,37 +148,20 @@ function Botman(name){
             var element = document.querySelector(selector);
 
             if (element !== null){
-                Message.fromReply(element);
+                var msg = new ReceivedMessage(element, payload.message.body);
+                interpretReceived(msg);
                 that.messageQueue.shift();
             }
         }
     }, 1000);
 }
 
-function Message(ev){
+function Message(target){
     "use strict";
+
     var that = this;
 
-    if (ev instanceof Event) {
-        that.event = ev;
-        that.target = that.event.target;
-    } else {
-        that.target = ev;
-    }
-
-    that.body = function(){
-        return that.target.value;
-    }
-
-    // [Deprecate] 
-    that.botmanGenerated = function(){
-        return !!that.event.botmanGenerated ? true : false;
-    }
-
-    // [Deprecate]
-    that.hold = function(){
-        that.event.stopPropagation();
-    }
+    that.target = target;
 
     that.send = function(body){
         that.target.value = body;
@@ -176,7 +180,34 @@ function Message(ev){
     }
 }
 
-Message.fromReply = function(replyElement){
+function SentMessage(ev){
+    "use strict";
+
+    var that = this;
+
+    that.event = ev;
+    Message.call(that, that.event.target);
+
+    that.body = function(){
+        return that.target.value;
+    }
+
+    that.botmanGenerated = function(){
+        return !!that.event.botmanGenerated ? true : false;
+    }
+
+    that.hold = function(){
+        that.event.stopPropagation();
+    }
+}
+
+SentMessage.prototype = Object.create(Message.prototype);
+
+function ReceivedMessage(replyElement, body){
+    "use strict";
+
+    var that = this;
+
     // Holy shiiiit this is horrible
     var textarea = replyElement.
         parentElement.
@@ -191,11 +222,14 @@ Message.fromReply = function(replyElement){
         parentElement.
         querySelector("textarea");
 
-    var msg = new Message(textarea);
-    console.log(msg);
-    msg.sendNow("I can't do without you");
-    return msg;
-};
+    Message.call(that, textarea);
+
+    that.body = function(){
+        return body;
+    }
+}
+
+ReceivedMessage.prototype = Object.create(Message.prototype);
 
 Keyfaker = {};
 
@@ -550,6 +584,21 @@ function serializeToUrlEncoded(obj){
             }
         });
 
+    });
+}());
+
+// Wow intensifies ------------------------------------------------------------
+
+(function(){
+    "use strict";
+
+    var img = "http://i.imgur.com/W05Q4XR.gif";
+
+    robot.reply(/(wo+w)/i, function(msg){
+        msg.send(img + " ");
+        setTimeout(function(){
+            msg.sendNow("");
+        }, 1000);
     });
 }());
 
