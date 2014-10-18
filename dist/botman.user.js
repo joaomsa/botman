@@ -139,34 +139,41 @@ function Message(ev){
     "use strict";
     var that = this;
 
-    that.event = ev;
-
-    that.body = function(){
-        return that.event.target.value;
+    if (ev instanceof Event) {
+        that.event = ev;
+        that.target = that.event.target;
+    } else {
+        that.target = ev;
     }
 
+    that.body = function(){
+        return that.target.value;
+    }
+
+    // [Deprecate] 
     that.botmanGenerated = function(){
         return !!that.event.botmanGenerated ? true : false;
     }
 
+    // [Deprecate]
+    that.hold = function(){
+        that.event.stopPropagation();
+    }
+
     that.send = function(body){
-        that.event.target.value = body;
+        that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.SPACE);
         ev.botmanGenerated = true;
-        that.event.target.dispatchEvent(ev);
+        that.target.dispatchEvent(ev);
     }
 
     that.sendNow = function(body){
-        that.event.target.value = body;
+        that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.ENTER);
         ev.botmanGenerated = true;
-        that.event.target.dispatchEvent(ev);
-    }
-
-    that.hold = function(){
-        that.event.stopPropagation();
+        that.target.dispatchEvent(ev);
     }
 }
 
