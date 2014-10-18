@@ -39,3 +39,24 @@ function Message(ev){
         that.target.dispatchEvent(ev);
     }
 }
+
+Message.fromReply = function(replyElement){
+    // Holy shiiiit this is horrible
+    var textarea = replyElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        parentElement.
+        querySelector("textarea");
+
+    var msg = new Message(textarea);
+    console.log(msg);
+    msg.sendNow("I can't do without you");
+    return msg;
+};

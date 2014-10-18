@@ -85,8 +85,9 @@ function Botman(name){
                             var resp = JSON.parse(responses[i]);
                             if (resp.t === "msg"){
                                 for (var j = 0; j < resp.ms.length; j++){
-                                    if (resp.ms[j].type === "messaging"){
-                                        //var body = resp.ms[j].message.body;
+                                    if (resp.ms[j].type === "messaging" 
+                                            && resp.ms[j].event === "deliver"
+                                            && resp.ms[j].is_unread){
                                         that.messageQueue.push(resp.ms[j]);
                                     }
                                 }
@@ -110,10 +111,8 @@ function Botman(name){
             var selector = 'div[data-reactid$="1' + mid[1] + '=2' + mid[2] + '"]';
             var element = document.querySelector(selector);
 
-            console.log("------------------------");
-
             if (element !== null){
-                console.log(element);
+                Message.fromReply(element);
                 that.messageQueue.shift();
             }
         }
