@@ -8,7 +8,7 @@
 // @include     https://www.facebook.com/*
 // @exclude     https://www.facebook.com/ai.php*
 // @exclude     https://www.facebook.com/xti.php*
-// @version     2.0.0
+// @version     2.0.1
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue

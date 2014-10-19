@@ -26,7 +26,7 @@ function Botman(){
     that.reply = function(capture, callback){
         replyCaptures.push(capture);
         replyCallbacks.push(callback);
-    }
+    };
 
     function interpretSent(msg){
         if (msg.botmanGenerated())
@@ -76,7 +76,7 @@ function Botman(){
                     && ev.target.classList.contains("uiTextareaAutogrow")){
                 if (ev.which === Keyfaker.ENTER){
                     var msg = new SentMessage(ev);
-                    interpretSent(msg)
+                    interpretSent(msg);
                 }
             }
         }, true);
@@ -86,33 +86,40 @@ function Botman(){
 
     function listenReceived(){
         var origOpen = XMLHttpRequest.prototype.open;
+        var last_seq = -1;
 
         XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+
             this.addEventListener("readystatechange", function() {
-                if (this.readyState == XMLHttpRequest.DONE){
+                if (this.readyState < XMLHttpRequest.LOADING)
+                    return;
 
-                    var responses = this.responseText.
-                        slice(this.responseText.indexOf('{')).
-                        split('\n');
+                var responses = this.responseText.
+                    slice(this.responseText.indexOf('{')).
+                    split('\n');
 
-                    for (var i = 0; i < responses.length; i++){
-                        if (!responses[i]) continue;
+                for (var i = 0; i < responses.length; i++){
+                    if (!responses[i]) continue;
 
-                        try {
-                            var resp = JSON.parse(responses[i]);
-                            if (resp.t === "msg"){
-                                for (var j = 0; j < resp.ms.length; j++){
-                                    if (resp.ms[j].type === "messaging" 
-                                            && resp.ms[j].event === "deliver"
-                                            && resp.ms[j].is_unread){
-                                        that.receivedQueue.push(resp.ms[j]);
-                                    }
+                    try {
+                        var resp = JSON.parse(responses[i]);
+                        if (resp.t === "msg"){
+                            // Facebook uses request streaming
+                            if (resp.seq <= last_seq)
+                                continue;
+                            else
+                                last_seq = resp.seq
+
+                            for (var j = 0; j < resp.ms.length; j++){
+                                if (resp.ms[j].type === "messaging" 
+                                        && resp.ms[j].event === "deliver"
+                                        && resp.ms[j].is_unread){
+                                    that.receivedQueue.push(resp.ms[j]);
                                 }
                             }
-                        } catch (e){
-                            console.log("Couldn't parse:\n|" + responses[i] + "|");
                         }
-
+                    } catch (e){
+                        console.log("Couldn't parse:\n|" + responses[i] + "|");
                     }
                 }
             }, false);
@@ -138,6 +145,6 @@ function Botman(){
                     that.receivedQueue.shift();
                 }
             }
-        }, 1000);
+        }, 100);
     };
 }
