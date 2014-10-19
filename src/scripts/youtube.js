@@ -26,7 +26,10 @@
                 for (var i = 0; i < video.link.length; i++){
                     var link = video.link[i];
                     if (link.rel === "alternate" && link.type === "text/html"){
-                        msg.send(link.href);
+                        msg.replace(link.href + " ");
+                        setTimeout(function(){
+                            msg.replace("");
+                        }, 1000);
                     }
                 }
             }

@@ -23,7 +23,7 @@
         var delay = 1500;
 
         (function sayLine(){
-            msg.sendNow(script[i]);
+            msg.send(script[i]);
             i += 1;
             if (i < script.length){
                 setTimeout(sayLine, delay);

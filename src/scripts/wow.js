@@ -6,9 +6,9 @@
     var img = "http://i.imgur.com/W05Q4XR.gif";
 
     robot.reply(/(wo+w)/i, function(msg){
-        msg.send(img + " ");
+        msg.replace(img + " ");
         setTimeout(function(){
-            msg.sendNow("");
+            msg.send("");
         }, 1000);
     });
 }());

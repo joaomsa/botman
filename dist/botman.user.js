@@ -169,7 +169,7 @@ function Message(target){
 
     that.target = target;
 
-    that.send = function(body){
+    that.replace = function(body){
         that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.SPACE);
@@ -177,7 +177,7 @@ function Message(target){
         that.target.dispatchEvent(ev);
     }
 
-    that.sendNow = function(body){
+    that.send = function(body){
         that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.ENTER);
@@ -375,7 +375,7 @@ function serializeToUrlEncoded(obj){
         var delay = 1500;
 
         (function sayLine(){
-            msg.sendNow(script[i]);
+            msg.send(script[i]);
             i += 1;
             if (i < script.length){
                 setTimeout(sayLine, delay);
@@ -392,7 +392,7 @@ function serializeToUrlEncoded(obj){
     robot.comply(/rename (\b\w+\b)$/i, function(msg){
         robot.name = msg.match[1];
         GM_setValue("name", robot.name);
-        msg.send("");
+        msg.replace("");
     });
 }());
 
@@ -425,10 +425,10 @@ function serializeToUrlEncoded(obj){
                 if (!!images.responseData){
                     images = images.responseData.results;
                     if (!!images && images.length > 0){
-                        msg.send(chooseRandom(images).unescapedUrl + " ");
+                        msg.replace(chooseRandom(images).unescapedUrl + " ");
                         // Clear link after facebook share has parsed it
                         setTimeout(function(){
-                            msg.send("");
+                            msg.replace("");
                         }, 1000); // 
                     }
                 }
@@ -463,7 +463,10 @@ function serializeToUrlEncoded(obj){
             encodeURIComponent(location) +
             "&t=m&z=11";
 
-        msg.send(url);
+        msg.replace(url + " ");
+        setTimeout(function(){
+            msg.replace("");
+        }, 1000);
     });
 }());
 
@@ -598,7 +601,7 @@ function serializeToUrlEncoded(obj){
             onload: function(resp){
                 // Google, why the fuck is this not valid JSON?
                 var translations = eval(resp.responseText);
-                msg.send(translations[0][0][0]);
+                msg.replace(translations[0][0][0]);
             }
         });
 
@@ -613,9 +616,9 @@ function serializeToUrlEncoded(obj){
     var img = "http://i.imgur.com/W05Q4XR.gif";
 
     robot.reply(/(wo+w)/i, function(msg){
-        msg.send(img + " ");
+        msg.replace(img + " ");
         setTimeout(function(){
-            msg.sendNow("");
+            msg.send("");
         }, 1000);
     });
 }());
@@ -648,7 +651,10 @@ function serializeToUrlEncoded(obj){
                 for (var i = 0; i < video.link.length; i++){
                     var link = video.link[i];
                     if (link.rel === "alternate" && link.type === "text/html"){
-                        msg.send(link.href);
+                        msg.replace(link.href + " ");
+                        setTimeout(function(){
+                            msg.replace("");
+                        }, 1000);
                     }
                 }
             }

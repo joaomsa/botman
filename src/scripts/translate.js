@@ -129,7 +129,7 @@
             onload: function(resp){
                 // Google, why the fuck is this not valid JSON?
                 var translations = eval(resp.responseText);
-                msg.send(translations[0][0][0]);
+                msg.replace(translations[0][0][0]);
             }
         });
 

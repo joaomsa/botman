@@ -5,7 +5,7 @@ function Message(target){
 
     that.target = target;
 
-    that.send = function(body){
+    that.replace = function(body){
         that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.SPACE);
@@ -13,7 +13,7 @@ function Message(target){
         that.target.dispatchEvent(ev);
     }
 
-    that.sendNow = function(body){
+    that.send = function(body){
         that.target.value = body;
 
         var ev = Keyfaker.keydown(Keyfaker.ENTER);

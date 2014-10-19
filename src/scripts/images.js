@@ -27,10 +27,10 @@
                 if (!!images.responseData){
                     images = images.responseData.results;
                     if (!!images && images.length > 0){
-                        msg.send(chooseRandom(images).unescapedUrl + " ");
+                        msg.replace(chooseRandom(images).unescapedUrl + " ");
                         // Clear link after facebook share has parsed it
                         setTimeout(function(){
-                            msg.send("");
+                            msg.replace("");
                         }, 1000); // 
                     }
                 }

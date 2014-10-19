@@ -12,6 +12,9 @@
             encodeURIComponent(location) +
             "&t=m&z=11";
 
-        msg.send(url);
+        msg.replace(url + " ");
+        setTimeout(function(){
+            msg.replace("");
+        }, 1000);
     });
 }());
