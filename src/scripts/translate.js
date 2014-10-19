@@ -95,7 +95,7 @@
             "(?: (?:in)?to (" + languageChoices + "))?" +
             " (.*)", "i");
 
-    robot.respond(pattern, function(msg){
+    robot.comply(pattern, function(msg){
         var origin = getCode(msg.match[1]);
         if (typeof(origin) === "undefined"){
             origin = "auto";

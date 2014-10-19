@@ -19,23 +19,23 @@ function Botman(name){
 
     that.name = name;
 
-    that.hearCaptures = [];
-    that.hearCallbacks = [];
+    var hearCaptures = [];
+    var hearCallbacks = [];
 
-    that.responseCaptures = [];
-    that.responseCallbacks = [];
+    var complyCaptures = [];
+    var complyCallbacks = [];
 
     var replyCaptures = [];
     var replyCallbacks = [];
 
     that.hear = function(capture, callback){
-        that.hearCaptures.push(capture);
-        that.hearCallbacks.push(callback);
+        hearCaptures.push(capture);
+        hearCallbacks.push(callback);
     };
 
-    that.respond = function(capture, callback){
-        that.responseCaptures.push(capture);
-        that.responseCallbacks.push(callback);
+    that.comply = function(capture, callback){
+        complyCaptures.push(capture);
+        complyCallbacks.push(callback);
     };
 
     that.reply = function(capture, callback){
@@ -43,67 +43,63 @@ function Botman(name){
         replyCallbacks.push(callback);
     }
 
-    that.interpret = function(msg){
+    function interpretSent(msg){
         if (msg.botmanGenerated())
             return;
 
         var cmdMatch = msg.body().match(new RegExp("^" + that.name + "\\s*(.*)", "i"));
-        if (!!cmdMatch){ // Triggers registered with respond
+        if (!!cmdMatch){ // Triggers registered with comply
             var cmd = cmdMatch[1];
-            for (var i = 0; i < that.responseCaptures.length; i++){
-                var match = cmd.match(that.responseCaptures[i]);
+            for (var i = 0; i < complyCaptures.length; i++){
+                var match = cmd.match(complyCaptures[i]);
                 if (!!match){
                     //keep it in the oven before sending
                     msg.hold();
                     msg.match = match;
                     // execute response callback with message
-                    that.responseCallbacks[i](msg);
+                    complyCallbacks[i](msg);
                     return;
                 }
             }
         } else { // Triggers registered with hear
-            for (var i = 0; i < that.hearCaptures.length; i++){
-                var match = msg.body().match(that.hearCaptures[i]);
+            for (var i = 0; i < hearCaptures.length; i++){
+                var match = msg.body().match(hearCaptures[i]);
                 if (!!match){
                     msg.hold();
                     msg.match = match;
-                    that.hearCallbacks[i](msg);
+                    hearCallbacks[i](msg);
                     return;
                 }
             }
         }
-    };
+    }
 
     function interpretReceived(msg){
         for (var i = 0; i < replyCaptures.length; i++){
-            console.log(replyCaptures[i]);
             var match = msg.body().match(replyCaptures[i]);
             if (!!match){
                 msg.match = match;
-                console.log("weee matched :)");
                 replyCallbacks[i](msg);
                 return;
             }
         }
     }
 
-    that.listen = function(){
+    function listenSend(){
         window.addEventListener("keydown", function(ev){
             if (ev.target.nodeName === "TEXTAREA"
                     && ev.target.classList.contains("uiTextareaAutogrow")){
                 if (ev.which === Keyfaker.ENTER){
                     var msg = new SentMessage(ev);
-                    that.interpret(msg);
+                    interpretSent(msg)
                 }
             }
         }, true);
+    }
 
-        that.monitor();
-    };
+    that.receivedQueue = [];
 
-    that.messageQueue = [];
-
-    that.monitor = function(){
+    function listenReceived(){
         var origOpen = XMLHttpRequest.prototype.open;
 
         XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
@@ -124,7 +120,7 @@ function Botman(name){
                                     if (resp.ms[j].type === "messaging" 
                                             && resp.ms[j].event === "deliver"
                                             && resp.ms[j].is_unread){
-                                        that.messageQueue.push(resp.ms[j]);
+                                        that.receivedQueue.push(resp.ms[j]);
                                     }
                                 }
                             }
@@ -140,20 +136,25 @@ function Botman(name){
         };
     }
 
-    setInterval(function(){
-        if (that.messageQueue.length > 0){
-            var payload = that.messageQueue[0];
-            var mid = payload.message.mid.match("mid\.(.+):(.+)");
-            var selector = 'div[data-reactid$="1' + mid[1] + '=2' + mid[2] + '"]';
-            var element = document.querySelector(selector);
+    that.listen = function(){
+        listenSend();
+        listenReceived();
 
-            if (element !== null){
-                var msg = new ReceivedMessage(element, payload.message.body);
-                interpretReceived(msg);
-                that.messageQueue.shift();
+        setInterval(function(){
+            if (that.receivedQueue.length > 0){
+                var payload = that.receivedQueue[0];
+                var mid = payload.message.mid.match("mid\.(.+):(.+)");
+                var selector = 'div[data-reactid$="1' + mid[1] + '=2' + mid[2] + '"]';
+                var element = document.querySelector(selector);
+
+                if (element !== null){
+                    var msg = new ReceivedMessage(element, payload.message.body);
+                    interpretReceived(msg);
+                    that.receivedQueue.shift();
+                }
             }
-        }
-    }, 1000);
+        }, 1000);
+    };
 }
 
 function Message(target){
@@ -422,11 +423,11 @@ function serializeToUrlEncoded(obj){
         });
     }
 
-    robot.respond(/(image|img)( me)? (.*)/i, function(msg){
+    robot.comply(/(image|img)( me)? (.*)/i, function(msg){
         imageMe(msg, msg.match[3], false);
     });
 
-    robot.respond(/animate( me)? (.*)/i, function(msg){
+    robot.comply(/animate( me)? (.*)/i, function(msg){
         imageMe(msg, msg.match[2], true);
     });
 }());
@@ -436,7 +437,7 @@ function serializeToUrlEncoded(obj){
 (function(){
     "use strict";
 
-    robot.respond(/map( me)?(.+)/i, function(msg){
+    robot.comply(/map( me)?(.+)/i, function(msg){
         var location = msg.match[2];
 
         var url = "http://maps.google.com/maps?q=" +
@@ -546,7 +547,7 @@ function serializeToUrlEncoded(obj){
             "(?: (?:in)?to (" + languageChoices + "))?" +
             " (.*)", "i");
 
-    robot.respond(pattern, function(msg){
+    robot.comply(pattern, function(msg){
         var origin = getCode(msg.match[1]);
         if (typeof(origin) === "undefined"){
             origin = "auto";
@@ -607,7 +608,7 @@ function serializeToUrlEncoded(obj){
 (function(){
     "use strict";
 
-    robot.respond(/(?:yt|youtube)(?: me)? (.*)/i, function(msg){
+    robot.comply(/(?:yt|youtube)(?: me)? (.*)/i, function(msg){
         var query = msg.match[1];
 
         var params = {

@@ -42,11 +42,11 @@
         });
     }
 
-    robot.respond(/(image|img)( me)? (.*)/i, function(msg){
+    robot.comply(/(image|img)( me)? (.*)/i, function(msg){
         imageMe(msg, msg.match[3], false);
     });
 
-    robot.respond(/animate( me)? (.*)/i, function(msg){
+    robot.comply(/animate( me)? (.*)/i, function(msg){
         imageMe(msg, msg.match[2], true);
     });
 }());

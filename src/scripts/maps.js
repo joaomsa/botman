@@ -3,7 +3,7 @@
 (function(){
     "use strict";
 
-    robot.respond(/map( me)?(.+)/i, function(msg){
+    robot.comply(/map( me)?(.+)/i, function(msg){
         var location = msg.match[2];
 
         var url = "http://maps.google.com/maps?q=" +

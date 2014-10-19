@@ -3,7 +3,7 @@
 (function(){
     "use strict";
 
-    robot.respond(/(?:yt|youtube)(?: me)? (.*)/i, function(msg){
+    robot.comply(/(?:yt|youtube)(?: me)? (.*)/i, function(msg){
         var query = msg.match[1];
 
         var params = {
