@@ -1,23 +1,28 @@
 // ==UserScript==
 // @name        botman
 // @namespace   botman
+// @author      Joao Sa <me@joaomsa.com>
+// @homepage    https://github.com/joaomsa/botman
 // @description Botman is here to speed up those witty responses on facebook
+// @downloadURL https://github.com/joaomsa/botman/raw/master/dist/botman.user.js
 // @include     https://www.facebook.com/*
 // @exclude     https://www.facebook.com/ai.php*
 // @exclude     https://www.facebook.com/xti.php*
-// @version     1.2.0
+// @version     2.0.0
 // @grant       GM_xmlhttpRequest
+// @grant       GM_getValue
+// @grant       GM_setValue
 // @run-at      document-end
 // ==/UserScript==
 
-var robot = new Botman("botman");
+var robot = new Botman();
 robot.listen();
 
-function Botman(name){
+function Botman(){
     "use strict";
     var that = this;
 
-    that.name = name;
+    that.name = GM_getValue("name", "botman");
 
     var hearCaptures = [];
     var hearCallbacks = [];
@@ -47,7 +52,7 @@ function Botman(name){
         if (msg.botmanGenerated())
             return;
 
-        var cmdMatch = msg.body().match(new RegExp("^" + that.name + "\\s*(.*)", "i"));
+        var cmdMatch = msg.body().match(new RegExp("^\\s*" + that.name + "\\s*(.*)", "i"));
         if (!!cmdMatch){ // Triggers registered with comply
             var cmd = cmdMatch[1];
             for (var i = 0; i < complyCaptures.length; i++){
@@ -376,6 +381,18 @@ function serializeToUrlEncoded(obj){
                 setTimeout(sayLine, delay);
             }
         }());
+    });
+}());
+
+// Configuration --------------------------------------------------------------
+
+(function(){
+    "use strict";
+
+    robot.comply(/rename (\b\w+\b)$/i, function(msg){
+        robot.name = msg.match[1];
+        GM_setValue("name", robot.name);
+        msg.send("");
     });
 }());
 

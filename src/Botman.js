@@ -1,8 +1,8 @@
-function Botman(name){
+function Botman(){
     "use strict";
     var that = this;
 
-    that.name = name;
+    that.name = GM_getValue("name", "botman");
 
     var hearCaptures = [];
     var hearCallbacks = [];
@@ -32,7 +32,7 @@ function Botman(name){
         if (msg.botmanGenerated())
             return;
 
-        var cmdMatch = msg.body().match(new RegExp("^" + that.name + "\\s*(.*)", "i"));
+        var cmdMatch = msg.body().match(new RegExp("^\\s*" + that.name + "\\s*(.*)", "i"));
         if (!!cmdMatch){ // Triggers registered with comply
             var cmd = cmdMatch[1];
             for (var i = 0; i < complyCaptures.length; i++){
